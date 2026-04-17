@@ -2,6 +2,7 @@ import chalk from "chalk";
 import ora from "ora";
 
 import { makeSolanaContext } from "../solana/makeAgent";
+import { loadConfig } from "../config/loadConfig";
 import { takeSnapshot, formatSnapshotSummary } from "../state/snapshot";
 import { evaluateRisk } from "../risk/risk.engine";
 import { formatRiskReport } from "../risk/risk.format";
@@ -23,6 +24,7 @@ import { savePendingReceipt, clearPendingReceipt } from "../receipts/pending.sto
 
 import type { RunOutcome } from "../run/run.types";
 import { formatRunOutcomeOneLine } from "../run/run.format";
+import { instrumentRunCycle } from "../observability/instrumentation";
 
 export interface RunCommandOpts {
   once?: boolean;
@@ -51,13 +53,20 @@ export async function runOnce(opts: RunCommandOpts): Promise<RunOutcome> {
   const isDryRun = opts.dryRun ?? false;
   const runId = makeRunId();
 
-  logger.section(
-    `Guardian Run — ${runId}` +
-      (isDryRun ? " (DRY RUN)" : "") +
-      (opts.planId ? ` (plan-id: ${opts.planId})` : "")
-  );
+  return instrumentRunCycle(
+    {
+      runId,
+      dryRun: isDryRun,
+      planId: opts.planId ?? "",
+    },
+    async () => {
+      logger.section(
+        `Guardian Run — ${runId}` +
+          (isDryRun ? " (DRY RUN)" : "") +
+          (opts.planId ? ` (plan-id: ${opts.planId})` : "")
+      );
 
-  try {
+      try {
     const ctx = makeSolanaContext();
     const policy = loadPolicy();
 
@@ -120,7 +129,8 @@ export async function runOnce(opts: RunCommandOpts): Promise<RunOutcome> {
         return out;
       }
 
-      const planSpinner = ora("Calling LLM planner...").start();
+      const config = loadConfig();
+      const planSpinner = ora(`Calling LLM planner (${config.llmModel})...`).start();
       try {
         const planResult = await generatePlan({
           snapshot,
@@ -303,17 +313,18 @@ export async function runOnce(opts: RunCommandOpts): Promise<RunOutcome> {
       return out;
     }
 
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    logger.error(`Unhandled exception in runOnce: ${msg}`);
-    const out: RunOutcome = {
-      runId,
-      ok: false,
-      status: "UNKNOWN_ERROR",
-      message: "An unknown exception escaped the loop.",
-      errorMessage: msg,
-    };
-    logger.raw(formatRunOutcomeOneLine(out));
-    return out;
-  }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      logger.error(`Unhandled exception in runOnce: ${msg}`);
+      const out: RunOutcome = {
+        runId,
+        ok: false,
+        status: "UNKNOWN_ERROR",
+        message: "An unknown exception escaped the loop.",
+        errorMessage: msg,
+      };
+      logger.raw(formatRunOutcomeOneLine(out));
+      return out;
+    }
+  });
 }

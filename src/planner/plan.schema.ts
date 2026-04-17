@@ -97,12 +97,12 @@ export const PlanSchema = z.object({
   /**
    * Swap parameters — required if actionType is "swap".
    */
-  swapParams: PlanSwapParamsSchema.optional(),
+  swapParams: PlanSwapParamsSchema.nullable().optional(),
 
   /**
    * Transfer parameters — required if actionType is "transfer".
    */
-  transferParams: PlanTransferParamsSchema.optional(),
+  transferParams: PlanTransferParamsSchema.nullable().optional(),
 
   /**
    * Confidence score 0.0–1.0.

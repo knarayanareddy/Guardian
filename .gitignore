@@ -1,8 +1,10 @@
+data/cache/
 node_modules/
 dist/
 .env
+*.log
 agent-keypair.json
-data/receipts/
+data/daemon-state.json
 *.log
 .DS_Store
 node_modules

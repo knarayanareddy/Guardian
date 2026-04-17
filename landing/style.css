@@ -255,6 +255,92 @@ nav .container {
     color: var(--text-secondary);
 }
 
+/* ── Tour UI ───────────────────────────────────────────────────────────── */
+
+.hidden { display: none !important; }
+
+.tour-container {
+    margin-top: 2rem;
+    animation: fadeIn 0.4s ease-out;
+}
+
+.tour-card {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(0, 0, 0, 0.4) 100%);
+    border: 1px solid var(--acc-color);
+    border-radius: 16px;
+    padding: 2rem;
+    backdrop-filter: blur(16px);
+    box-shadow: 0 0 30px rgba(59, 130, 246, 0.2);
+}
+
+.tour-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    font-size: 0.8rem;
+    color: var(--acc-color);
+}
+
+.tour-header button {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.tour-header button:hover { color: white; }
+
+.tour-content h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.75rem;
+    color: white;
+}
+
+.tour-content p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin-bottom: 2rem;
+}
+
+.tour-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+.btn-tour {
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    font-size: 0.850rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-tour:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+#prev-tour {
+    background: transparent;
+    border: 1px solid var(--glass-border);
+    color: white;
+}
+
+#next-tour {
+    background: var(--acc-color);
+    border: none;
+    color: white;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
 /* ── Buttons ────────────────────────────────────────────────────────────── */
 
 .btn {
@@ -295,10 +381,15 @@ nav .container {
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
     border-radius: 24px;
-    padding: 4rem;
+    padding: 5rem 2rem;
     margin-top: 4rem;
     display: flex;
     justify-content: center;
+    overflow-x: auto;
+}
+
+.mermaid {
+    width: 100%;
 }
 
 /* ── Responsive ─────────────────────────────────────────────────────────── */

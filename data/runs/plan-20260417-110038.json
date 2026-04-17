@@ -1,0 +1,12 @@
+{
+  "planId": "plan-20260417-110038",
+  "label": "No action possible due to zero balance",
+  "reasoning": "The wallet currently holds 0 lamports of SOL and no other assets. Therefore, no transaction (swap or transfer) can be executed.",
+  "actionType": "none",
+  "swapParams": null,
+  "transferParams": null,
+  "confidence": 1,
+  "risks": [],
+  "receiptTags": [],
+  "triggerReason": "Testing local gemma4 model"
+}

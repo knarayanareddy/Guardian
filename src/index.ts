@@ -29,6 +29,12 @@ import { runOnce } from "./commands/run";
 // Phase 8
 import { runReceiptList, runReceiptShow, runReceiptProcess } from "./commands/receipt";
 
+// Phase 13
+import { initObservability } from "./observability/instrumentation";
+
+// Observability must never break the CLI.
+initObservability().catch(() => {});
+
 // Phase 9
 import { runVerifyReceipt } from "./commands/verify";
 

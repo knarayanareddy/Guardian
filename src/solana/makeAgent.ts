@@ -25,11 +25,11 @@ export function makeSolanaContext(): SolanaContext {
   const connection = new Connection(config.solanaRpcUrl, "confirmed");
   const keypair = loadKeypairFromFile(config.agentKeypairPath);
 
-  // Apply Patch A: KeypairWallet constructor expects 1 argument in some Agent Kit versions
+  // Apply Patch A: KeypairWallet constructor expects 2 arguments (Keypair, rpcUrl)
   const wallet = new KeypairWallet(keypair, config.solanaRpcUrl);
 
   const kitCfg: Record<string, string> = {};
-  if (config.openAiApiKey) kitCfg.OPENAI_API_KEY = config.openAiApiKey;
+  if (config.llmApiKey) kitCfg.OPENAI_API_KEY = config.llmApiKey;
 
   const agent = new SolanaAgentKit(wallet, config.solanaRpcUrl, kitCfg).use(TokenPlugin);
 

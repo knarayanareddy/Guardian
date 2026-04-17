@@ -1,0 +1,16 @@
+{
+  "planId": "plan-20260417-111554",
+  "label": "No action needed due to zero balance",
+  "reasoning": "The wallet currently holds zero SOL and zero portfolio value. Although the system suggests refilling SOL, no funds are available in the wallet to execute any transaction.",
+  "actionType": "none",
+  "swapParams": null,
+  "transferParams": null,
+  "confidence": 1,
+  "risks": [
+    "Insufficient funds"
+  ],
+  "receiptTags": [
+    "manual_review"
+  ],
+  "triggerReason": "LOW SOL"
+}

@@ -1,4 +1,5 @@
 import { makeSolanaContext } from "../solana/makeAgent";
+import { loadConfig } from "../config/loadConfig";
 import { takeSnapshot, formatSnapshotSummary } from "../state/snapshot";
 import { evaluateRisk } from "../risk/risk.engine";
 import { formatRiskReport } from "../risk/risk.format";
@@ -61,7 +62,8 @@ export async function runPlan(opts: PlanCommandOpts): Promise<void> {
   }
 
   // ── 4. LLM planning ───────────────────────────────────────────────────────
-  const planSpinner = ora("Calling LLM planner (gpt-4o)...").start();
+  const config = loadConfig();
+  const planSpinner = ora(`Calling LLM planner (${config.llmModel})...`).start();
   let planResult;
   try {
     planResult = await generatePlan({

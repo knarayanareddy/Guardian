@@ -1,0 +1,16 @@
+{
+  "planId": "plan-20260417-110144",
+  "label": "No action possible due to zero balance",
+  "reasoning": "The wallet currently holds zero SOL and no other assets. Although a refill is recommended, no swap or transfer action can be executed without funds.",
+  "actionType": "none",
+  "swapParams": null,
+  "transferParams": null,
+  "confidence": 1,
+  "risks": [
+    "Insufficient funds"
+  ],
+  "receiptTags": [
+    "policy_check"
+  ],
+  "triggerReason": "Testing local gemma4 model"
+}

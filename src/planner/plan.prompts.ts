@@ -203,10 +203,10 @@ export function buildUserPrompt(params: {
   riskReport: RiskReport;
   policy: Policy;
   triggerReason: string;
+  webContext?: string;
 }): string {
   const { snapshot, riskReport, policy, triggerReason } = params;
-
-  return [
+  const parts = [
     buildPolicySummary(policy),
     "",
     buildSnapshotSummary(snapshot),
@@ -214,12 +214,20 @@ export function buildUserPrompt(params: {
     buildRiskSummary(riskReport),
     "",
     `TRIGGER REASON: ${triggerReason}`,
-    "",
-    buildSchemaDescription(policy),
-    "",
-    "Analyze the above and respond with a single JSON plan object.",
-    "Your response must contain ONLY the JSON object — no markdown, no explanation, no code blocks.",
-  ].join("\n");
+  ];
+
+  if (params.webContext && params.webContext.trim().length > 0) {
+    parts.push("");
+    parts.push(params.webContext);
+  }
+
+  parts.push("");
+  parts.push(buildSchemaDescription(policy));
+  parts.push("");
+  parts.push("Analyze the above and respond with a single JSON plan object.");
+  parts.push("Your response must contain ONLY the JSON object — no markdown, no explanation, no code blocks.");
+
+  return parts.join("\n");
 }
 
 // ── Retry correction prompt ────────────────────────────────────────────────

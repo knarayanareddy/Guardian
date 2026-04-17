@@ -1,0 +1,12 @@
+{
+  "planId": "plan-20260417-112106",
+  "label": "No action needed due to zero balance",
+  "reasoning": "The wallet currently holds zero SOL and no other assets. Since no funds are available, no swap or transfer action can be executed or is warranted at this time.",
+  "actionType": "none",
+  "swapParams": null,
+  "transferParams": null,
+  "confidence": 1,
+  "risks": [],
+  "receiptTags": [],
+  "triggerReason": "auto"
+}

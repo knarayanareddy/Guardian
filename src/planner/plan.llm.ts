@@ -1,5 +1,5 @@
 import { generateText } from "ai";
-import { createOpenAI } from "@ai-sdk/openai";
+import { OpenAI } from "@ai-sdk/openai";
 import { PlanSchema, type Plan } from "./plan.schema";
 import { buildSystemPrompt, buildUserPrompt, buildRetryPrompt } from "./plan.prompts";
 import type { WalletSnapshot } from "../state/snapshot.schema";
@@ -9,11 +9,13 @@ import { loadConfig } from "../config/loadConfig";
 import { scanPromptInjection } from "../utils/scanPromptInjection";
 import { logger } from "../utils/logger";
 import { makeRunId, nowIso } from "../utils/time";
+import { searchSearxng, formatSearxngContext } from "../research/searxng";
+import { browseUrls, formatBrowsedPagesContext } from "../research/browse";
 
 // ── Config ─────────────────────────────────────────────────────────────────
 
-const MODEL_ID = "gpt-4o";
-const MAX_TOKENS = 800;
+// const MODEL_ID = "gpt-4o"; // Replaced by config
+const MAX_TOKENS = 900;
 const MAX_RETRIES = 2;
 const TEMPERATURE = 0.2; // Low temperature for deterministic JSON output
 
@@ -77,6 +79,27 @@ function sanitizeTriggerReason(raw: string): string {
   return raw;
 }
 
+/**
+ * Builds a safe search query based on risk triggers.
+ */
+function buildWebQuery(params: {
+  triggerReason: string;
+  riskReport: RiskReport;
+}): string {
+  const base = params.triggerReason || "solana";
+  // Keep it short and general to avoid prompt injection surfaces
+  if (params.riskReport.triggers.some((t) => t.kind === "drawdown")) {
+    return `Solana drawdown risk management swap to USDC Jupiter best practices ${base}`;
+  }
+  if (params.riskReport.triggers.some((t) => t.kind === "low_sol")) {
+    return `Solana lamports fee reserve signature cost devnet airdrop ${base}`;
+  }
+  if (params.riskReport.triggers.some((t) => t.kind === "execution_failure")) {
+    return `Solana transaction failures blockhash not found RPC rate limit retries ${base}`;
+  }
+  return `Solana ${base} best practices`;
+}
+
 // ── Public planner function ────────────────────────────────────────────────
 
 export interface PlanResult {
@@ -94,24 +117,52 @@ export async function generatePlan(params: {
 }): Promise<PlanResult> {
   const config = loadConfig();
 
-  if (!config.openAiApiKey) {
-    throw new Error(
-      "OPENAI_API_KEY is not set. Cannot run planner. " +
-      "Set it in .env and restart."
-    );
+  if (!config.llmModel) {
+    throw new Error("LLM_MODEL is not set. Cannot run planner.");
   }
 
-  const openai = createOpenAI({ apiKey: config.openAiApiKey });
-  const model = openai(MODEL_ID);
+  // Ollama is OpenAI-compatible; baseUrl points to Ollama /v1
+  // apiKey can be any non-empty string for local Ollama.
+  const openai = new OpenAI({
+    apiKey: config.llmApiKey || "ollama",
+    baseUrl: config.llmBaseUrl,
+  });
+
+  // Prefer chat() models (Ollama strongest compatibility is /v1/chat/completions)
+  const model = openai.chat(config.llmModel);
 
   const systemPrompt = buildSystemPrompt();
   const cleanReason = sanitizeTriggerReason(params.triggerReason);
+
+  // ── Research phase (best-effort) ────────────────────────────────────────
+  let webContext = "";
+  try {
+    if (config.searxngEnabled && config.searxngBaseUrl) {
+      const q = buildWebQuery({ triggerReason: cleanReason, riskReport: params.riskReport });
+      const results = await searchSearxng(q);
+      const searchCtx = formatSearxngContext(results);
+
+      // Browse top URLs if results found
+      let pageCtx = "";
+      if (config.browseEnabled && results.length > 0) {
+        const urls = results.map((r) => r.url).filter(Boolean);
+        const pages = await browseUrls(urls);
+        pageCtx = formatBrowsedPagesContext(pages);
+      }
+
+      webContext = [searchCtx, pageCtx].filter(Boolean).join("\n\n");
+      if (webContext) logger.info("Web context added to planner prompt.");
+    }
+  } catch (err) {
+    logger.warn(`Web research failed (non-fatal): ${String(err)}`);
+  }
 
   const userPrompt = buildUserPrompt({
     snapshot: params.snapshot,
     riskReport: params.riskReport,
     policy: params.policy,
     triggerReason: cleanReason,
+    webContext,
   });
 
   const rawResponses: string[] = [];
@@ -129,10 +180,10 @@ export async function generatePlan(params: {
 
     try {
       const result = await generateText({
-        model,
+        model: model as any,
         system: systemPrompt,
         prompt: currentUserPrompt,
-        maxOutputTokens: MAX_TOKENS,
+        maxTokens: MAX_TOKENS,
         temperature: TEMPERATURE,
       });
       responseText = result.text;
@@ -143,6 +194,7 @@ export async function generatePlan(params: {
     rawResponses.push(responseText);
     lastRaw = responseText;
 
+    logger.info(`- Calling LLM planner (${config.llmModel})...`);
     logger.debug(`LLM raw response (attempt ${attempts}):`, responseText.slice(0, 300));
 
     // ── Extract JSON ───────────────────────────────────────────────────────
