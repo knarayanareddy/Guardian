@@ -13,6 +13,10 @@ import { runWalletStatus } from "./commands/wallet";
 import { runPolicyValidate } from "./commands/policy.validate";
 import { runPolicyHistory } from "./commands/policy.history";
 
+// Phase 4
+import { runRiskStatus } from "./commands/risk.status";
+import { runRiskHistory } from "./commands/risk.history";
+
 const program = new Command();
 
 program
@@ -20,7 +24,7 @@ program
   .description(
     "Policy-bound Solana wallet agent with verifiable receipts and LLM wiki audit log"
   )
-  .version("0.3.0");
+  .version("0.4.0");
 
 // ── guardian init ─────────────────────────────────────────────────────────
 program
@@ -81,6 +85,26 @@ policyCmd
   .description("Show today's spend ledger")
   .action(async () => {
     await runPolicyHistory();
+  });
+
+// ── guardian risk ─────────────────────────────────────────────────────────
+const riskCmd = program
+  .command("risk")
+  .description("Risk engine: snapshot wallet + evaluate triggers");
+
+riskCmd
+  .command("status")
+  .description("Take a snapshot and evaluate current risk triggers")
+  .action(async () => {
+    await runRiskStatus();
+  });
+
+riskCmd
+  .command("history")
+  .description("Show recent price observations")
+  .option("-n, --n <count>", "Number of recent observations to show", "20")
+  .action(async (opts: { n?: string }) => {
+    await runRiskHistory(opts);
   });
 
 // ── Placeholder stubs (filled in later phases) ────────────────────────────
