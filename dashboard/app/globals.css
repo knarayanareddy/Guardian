@@ -1,0 +1,190 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
+
+:root {
+  --bg-color: #000000;
+  --acc-color: #3b82f6;
+  --acc-color-glow: rgba(59, 130, 246, 0.4);
+  --text-primary: #ffffff;
+  --text-secondary: #94a3b8;
+  --glass-bg: rgba(17, 17, 17, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+h1, h2, h3 {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ── Command Center Layout ─────────────────────────────────────────────── */
+
+.command-center {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}
+
+.sidebar {
+  width: 280px;
+  background: rgba(8, 8, 8, 0.9);
+  border-right: 1px solid var(--glass-border);
+  display: flex;
+  flex-direction: column;
+  backdrop-filter: blur(20px);
+}
+
+.sidebar-header {
+  padding: 2.5rem 2rem;
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 0 1rem;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.8rem 1rem;
+  margin-bottom: 0.5rem;
+  border-radius: 10px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.nav-item:hover {
+  background: rgba(255,255,255,0.05);
+  color: white;
+}
+
+.nav-item.active {
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--acc-color);
+}
+
+.main-view {
+  flex: 1;
+  overflow-y: auto;
+  padding: 3rem;
+  background: radial-gradient(circle at top right, rgba(59, 130, 246, 0.05), transparent);
+}
+
+/* ── Components ─────────────────────────────────────────────────────────── */
+
+.glass-card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: var(--card-shadow);
+  margin-bottom: 2rem;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.status-online { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid #10b981; }
+
+/* ── Monitoring View ────────────────────────────────────────────────────── */
+
+.monitoring-frame {
+  width: 100%;
+  height: calc(100vh - 12rem);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  background: black;
+}
+
+/* ── Wiki Browser ───────────────────────────────────────────────────────── */
+
+.wiki-container {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 2rem;
+  height: calc(100vh - 10rem);
+}
+
+.wiki-tree {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+.wiki-content {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 3rem;
+  overflow-y: auto;
+}
+
+.wiki-file {
+  padding: 0.5rem;
+  margin-bottom: 0.25rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: all 0.2s;
+}
+
+.wiki-file:hover { background: rgba(255,255,255,0.05); color: white; }
+.wiki-file.active { color: var(--acc-color); background: rgba(59,130,246,0.1); }
+
+/* ── Markdown Styles ────────────────────────────────────────────────────── */
+
+.markdown-body h1 { font-size: 2.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem; }
+.markdown-body h2 { font-size: 1.8rem; margin: 2rem 0 1rem; color: var(--acc-color); }
+.markdown-body p { margin-bottom: 1.2rem; color: var(--text-secondary); }
+.markdown-body ul { margin-bottom: 1.5rem; padding-left: 1.5rem; }
+.markdown-body li { margin-bottom: 0.5rem; }
+.markdown-body code { background: rgba(59,130,246,0.1); padding: 0.2rem 0.4rem; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; }
+
+/* ── Form Controls (Updated) ────────────────────────────────────────────── */
+
+.input-group { margin-bottom: 1.5rem; }
+.label { display: block; font-size: 0.85rem; margin-bottom: 0.5rem; color: var(--text-secondary); }
+input, select { 
+  width: 100%; height: 48px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); 
+  border-radius: 10px; padding: 0 1rem; color: white; transition: border-color 0.2s;
+}
+input:focus { outline: none; border-color: var(--acc-color); box-shadow: 0 0 15px var(--acc-color-glow); }
+.btn-primary { 
+  padding: 0 2.5rem; height: 48px; border-radius: 10px; background: var(--acc-color); 
+  color: white; font-weight: 700; border: none; cursor: pointer; transition: transform 0.1s; 
+}
+.btn-primary:active { transform: scale(0.96); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }

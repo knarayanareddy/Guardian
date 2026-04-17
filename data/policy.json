@@ -3,7 +3,7 @@
   "allowedMints": [],
   "denyMints": [],
   "maxSingleActionLamports": 200000000,
-  "dailySpendCapLamports": 500000000,
+  "dailySpendCapLamports": 600000000,
   "maxSlippageBps": 50,
   "allowedDestinations": [],
   "allowedActions": [
