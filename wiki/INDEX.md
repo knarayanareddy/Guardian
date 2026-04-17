@@ -1,14 +1,7 @@
-# Guardian Wiki
+# Guardian Audit Wiki
 
-Auto-generated audit log for the Guardian agent.
+Showcase mode documentation.
 
-## Structure
-- `policies/` — policy snapshots
-- `runs/` — per-run summaries
-- `receipts/` — per-action receipt narratives
-
-## Quick links
-- [Current policy](policies/current.md)
-
----
-*Initialized at 2026-04-17T09:27:40.873Z*
+## Recent Reports
+- [Profit Harvest Narrative](receipts/harvest-001.md)
+- [Risk Mitigation Audit](receipts/risk-0417.md)

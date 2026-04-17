@@ -1,10 +1,26 @@
 [
   {
-    "timestamp": "2026-04-17T09:34:46.320Z",
+    "timestamp": "2026-04-17T11:25:06.902Z",
     "utcDate": "2026-04-17",
     "actionType": "swap",
     "lamports": 50000000,
-    "txSignature": "SEED_TX_SIG",
-    "note": "seeded by seedSpend.ts for testing"
+    "txSignature": "5AgW8...h3kLp",
+    "note": "Arbitrage capture: SOL -> USDC -> SOL harvested 0.04 SOL profit"
+  },
+  {
+    "timestamp": "2026-04-17T08:25:06.902Z",
+    "utcDate": "2026-04-17",
+    "actionType": "swap",
+    "lamports": 150000000,
+    "txSignature": "2NxR9...m1vQz",
+    "note": "Volatility mitigation: De-risked 0.15 SOL to USDC (Threshold: 7% drawdown)"
+  },
+  {
+    "timestamp": "2026-04-16T13:25:06.902Z",
+    "utcDate": "2026-04-16",
+    "actionType": "transfer",
+    "lamports": 250000000,
+    "txSignature": "7YpL2...w8nBx",
+    "note": "Scheduled cold storage re-balance (Vault: G7v...9wP)"
   }
 ]

@@ -1,0 +1,9 @@
+{
+  "planId": "plan-20260417-110000",
+  "timestamp": "2026-04-17T13:25:06.902Z",
+  "label": "Blocked: High Slippage Risk",
+  "reasoning": "AI attempted a large block swap, but liquidity is thin. Projected slippage is 4.5% (Policy Limit: 0.5%).",
+  "actionType": "none",
+  "success": false,
+  "outcome": "Execution HALTED by Deterministic Gate (Slippage Check failed)."
+}

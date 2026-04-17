@@ -166,3 +166,60 @@ h2 {
     transform: scale(1.5);
     box-shadow: 0 0 10px var(--acc-color);
 }
+
+/* ── Split Layout & Process Slides ──────────────────────────────────────── */
+
+.split-content {
+    display: flex;
+    align-items: center;
+    gap: 4rem;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.split-content.reverse {
+    flex-direction: row-reverse;
+}
+
+.text-side {
+    flex: 0 0 40%;
+    text-align: left;
+}
+
+.img-side {
+    flex: 1;
+    position: relative;
+    display: flex;
+    justify-content: center;
+}
+
+.dashboard-img {
+    width: 100%;
+    max-width: 800px;
+    border-radius: 20px;
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px var(--acc-color-glow);
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.slide[data-active="true"] .dashboard-img {
+    animation: slideIn 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(60px) scale(0.9); }
+    to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@media (max-width: 1024px) {
+    .split-content, .split-content.reverse {
+        flex-direction: column;
+        gap: 2rem;
+        padding: 2rem;
+    }
+    .text-side {
+        flex: 1;
+        text-align: center;
+    }
+}

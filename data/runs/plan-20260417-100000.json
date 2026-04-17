@@ -1,0 +1,9 @@
+{
+  "planId": "plan-20260417-100000",
+  "timestamp": "2026-04-17T13:10:06.902Z",
+  "label": "Monitoring: No action needed",
+  "reasoning": "Market conditions are stable. Current drawdown is 1.2%, well below the 7% policy threshold.",
+  "actionType": "none",
+  "success": true,
+  "outcome": "System remains in Green status."
+}
