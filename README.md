@@ -6,8 +6,9 @@
 
 ## 🚀 Core Pillars
 
-- **🛡️ Policy-Bound**: Every action is gated by a deterministic TypeScript engine. No LLM "hallucinations" can bypass your spend limits or risk thresholds.
+- **🛡️ Policy-Bound**: Every action is gated by a deterministic TypeScript engine. No LLM "hallucinations" can bypass your spent limits or risk thresholds.
 - **🔍 Cryptographically Auditable**: Every execution generates a SHA-256 JSON receipt, anchored on-chain via SPL Memo transactions.
+- **🖥️ Unified Command Center**: A high-fidelity Next.js dashboard for real-time governance, Wiki browsing, and SigNoz observability.
 - **📖 Living Wiki**: All agent runs, receipts, and incidents are rendered into a human-readable Markdown Wiki for transparent oversight.
 - **🤖 Autonomous (Daemon)**: An always-on loop with intelligent exponential backoffs, operational state tracking, and incident halting logic.
 
@@ -15,21 +16,37 @@
 
 ## 🛠️ Architecture: The Guardian Pipeline
 
-Every cycle follow a non-negotiable safety pipeline:
+Every cycle follows a non-negotiable safety pipeline:
 
 ```mermaid
 graph TD
-    A[Snapshot] --> B[Risk Engine]
-    B --> C[LLM Planner]
-    C --> D[Policy Check]
-    D -- Denied --> E[Halt]
-    D -- Approved --> F[Human Approval Gate]
-    F -- Approved --> G[Execute]
-    G --> H[Receipt Build]
-    H --> I[On-Chain Anchor]
-    I --> J[Wiki Rendering]
-    J --> K[Wait for Interval]
-    K --> A
+    classDef brain fill:#1e1b4b,stroke:#3b82f6,stroke-width:2px,color:#fff
+    classDef shield fill:#111827,stroke:#ef4444,stroke-width:2px,color:#fff
+    classDef chain fill:#000,stroke:#3b82f6,stroke-width:2px,color:#fff
+    classDef output fill:#111,stroke:#3b82f6,stroke-dasharray: 5 5,color:#fff
+
+    subgraph Intelligence ["BRAIN (LLM)"]
+        A[Market Snapshot]:::brain --> B[AI Planning Activity]:::brain
+    end
+
+    subgraph Security ["SHIELD (GUARDIAN)"]
+        B --> C{Policy Gate}:::shield
+        C -- Denied --> D[Halt/Alert]:::shield
+        C -- Approved --> E[Risk Scoring]:::shield
+        E --> F[Human Approval Gate]:::shield
+    end
+
+    subgraph Ledger ["CHAIN (SOLANA)"]
+        F -- Approved --> G[Execution]:::chain
+        G --> H[On-Chain Receipt Anchor]:::chain
+    end
+
+    subgraph Audit ["REPORTING"]
+        H --> I[Markdwon Wiki Narrative]:::output
+        I --> J[Unified Dashboard]:::output
+    end
+
+    J -.-> A
 ```
 
 ---
@@ -54,11 +71,31 @@ Key variables:
 - `AGENT_KEYPAIR_PATH`: Path to your Solana JSON keypair.
 - `APPROVAL_MODE`: `always` | `policyOnly` | `never`.
 
-### 3. Initialization
-```bash
-npx ts-node src/index.ts init
-```
 This creates the necessary `data/` and `wiki/` directories.
+
+---
+
+## 🖥️ Unified Command Center
+
+The Guardian Dashboard is a high-fidelity Next.js application that provides a single pane of glass for your swarm.
+
+### 1. Launch the Dashboard
+```bash
+cd dashboard
+npm install
+npm run dev -- -p 3001
+```
+Access at `http://localhost:3001`.
+
+### 2. Showcase Mode (Simulator)
+No SOL? No problem. Use the seeder to populate the dashboard with realistic demonstration data:
+```bash
+# Enable Showcase Mode in .env
+echo "GUARDIAN_SHOWCASE_MODE=true" >> .env
+
+# Run the seeder
+npx ts-node scripts/seed-showcase.ts
+```
 
 ---
 

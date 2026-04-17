@@ -106,8 +106,18 @@
                 </div>
                 <div class="feature-card">
                     <div class="icon">🤖</div>
-                    <h3>Fault Tolerance</h3>
-                    <p>Daemon mode includes exponential backoffs for RPC rate limits and automatic incident reports on halt.</p>
+                    <h3>Autonomous Ops</h3>
+                    <p>Always-on daemon with exponential backoffs, operational state tracking, and incident halting logic.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">🖥️</div>
+                    <h3>Command Center</h3>
+                    <p>A high-fidelity Next.js dashboard for real-time governance, Wiki browsing, and SigNoz monitoring.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">🧪</div>
+                    <h3>Showcase Mode</h3>
+                    <p>Full-flow simulator that seeds demonstration data for funded environments and pitch scenarios.</p>
                 </div>
             </div>
         </section>
@@ -120,29 +130,31 @@
                 <div class="mermaid-container">
                     <div class="mermaid">
                         graph TD
-                            Chain["Solana Chain"]
-                            Snap["Snapshotter"]
-                            Risk["Risk Engine"]
-                            Plan["LLM Planner"]
-                            Pol["Policy Controller"]
-                            Gate["Human Gate"]
-                            Exec["Executor"]
-                            Audit["Audit Anchor"]
-                            Wiki["Wiki Generator"]
+                            classDef brain fill:#1e1b4b,stroke:#3b82f6,stroke-width:2px,color:#fff
+                            classDef shield fill:#111827,stroke:#ef4444,stroke-width:2px,color:#fff
+                            classDef chain fill:#000,stroke:#3b82f6,stroke-width:2px,color:#fff
+                            classDef output fill:#111,stroke:#3b82f6,stroke-dasharray: 5 5,color:#fff
 
-                            Chain --> Snap
-                            Snap --> Risk
-                            Risk --> Plan
-                            Plan --> Pol
-                            Pol -->|Passed| Gate
-                            Gate -->|Approved| Exec
-                            Exec --> Audit
-                            Audit --> Wiki
-                            Exec -->|Signed TX| Chain
+                            subgraph Intelligence ["BRAIN (LLM)"]
+                                A[Snapshot]:::brain --> B[AI Planning]:::brain
+                            end
 
-                            style Chain fill:#111,stroke:#3b82f6,stroke-width:2px,color:#fff
-                            style Pol fill:#000,stroke:#3b82f6,stroke-width:2px
-                            style Exec fill:#000,stroke:#3b82f6,stroke-width:2px
+                            subgraph Security ["SHIELD (DET.)"]
+                                B --> C{Policy Gate}:::shield
+                                C -- Denied --> D[Halt]:::shield
+                                C -- Approved --> E[Risk Scoring]:::shield
+                                E --> F[Human Gate]:::shield
+                            end
+
+                            subgraph Ledger ["CHAIN (SPL)"]
+                                F -- Approved --> G[Execution]:::chain
+                                G --> H[On-Chain Anchor]:::chain
+                            end
+
+                            subgraph Audit ["REPORTING"]
+                                H --> I[Markdown Wiki]:::output
+                                I --> J[Unified Dashboard]:::output
+                            end
                     </div>
                 </div>
             </div>
@@ -151,17 +163,13 @@
         <section id="roadmap" class="container">
             <h2 style="text-align: center;">Mission <span class="acc">Roadmap</span></h2>
             <div class="feature-grid">
-                <div class="feature-card">
-                    <h3>Phases 1-4</h3>
-                    <p>Scaffolding, Risk Engine, and Core Policy deterministic gating.</p>
+                <div class="feature-card active-card">
+                    <h3>Phases 1-12 [COMPLETED]</h3>
+                    <p>Gated Autonomy, Unified Dashboard, SigNoz Observability, and Showcase Mode deployment.</p>
                 </div>
                 <div class="feature-card">
-                    <h3>Phases 5-8</h3>
-                    <p>LLM Planning, Human-in-the-loop, and On-Chain Audit Anchoring.</p>
-                </div>
-                <div class="feature-card">
-                    <h3>Phases 9-10</h3>
-                    <p>Wiki rendering, cryptographic verification, and Daemon mode ops.</p>
+                    <h3>Phases 13-15</h3>
+                    <p>Cross-chain audit aggregation and enterprise vault integrations.</p>
                 </div>
             </div>
         </section>

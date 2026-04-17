@@ -401,3 +401,9 @@ nav .container {
     .feature-grid { grid-template-columns: 1fr; }
     .stats-grid { grid-template-columns: 1fr 1fr; }
 }
+
+.active-card {
+    border-color: var(--acc-color) !important;
+    background: rgba(59, 130, 246, 0.05) !important;
+    box-shadow: 0 0 20px var(--acc-color-glow);
+}
