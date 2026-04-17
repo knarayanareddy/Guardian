@@ -18,6 +18,15 @@ export async function GET() {
     const connection = new Connection("https://api.devnet.solana.com", "confirmed");
     const balance = await connection.getBalance(new PublicKey(pubkey));
 
+    // 2.2 Handle Showcase Mode override
+    let finalBalance = balance;
+    let isMock = false;
+    if (process.env.GUARDIAN_SHOWCASE_MODE === 'true') {
+      // Return a simulated healthy balance if in showcase mode
+      finalBalance = 125450000000; // 125.45 SOL
+      isMock = true;
+    }
+
     // 3. Read spend ledger
     let totalSpent = 0;
     let recentTxCount = 0;
@@ -31,12 +40,13 @@ export async function GET() {
 
     return NextResponse.json({
       address: pubkey,
-      balanceLamports: balance,
-      balanceSol: balance / 1_000_000_000,
+      balanceLamports: finalBalance,
+      balanceSol: finalBalance / 1_000_000_000,
       totalSpentLamports: totalSpent,
       totalSpentSol: totalSpent / 1_000_000_000,
       recentTxCount,
-      network: "devnet"
+      network: "devnet",
+      isMock
     });
   } catch (error) {
     console.error("Stats API Error:", error);
