@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.env
+agent-keypair.json
+data/receipts/
+*.log
+.DS_Store
+node_modules
