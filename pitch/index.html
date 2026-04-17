@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guardian Pitch — Secure Your Solana Swarm</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="nav-dots">
+        <div class="dot active" onclick="scrollToSlide(0)"></div>
+        <div class="dot" onclick="scrollToSlide(1)"></div>
+        <div class="dot" onclick="scrollToSlide(2)"></div>
+        <div class="dot" onclick="scrollToSlide(3)"></div>
+    </div>
+
+    <div class="slides-container" id="slides-container">
+        
+        <!-- Slide 1: The Problem -->
+        <section class="slide" data-active="true">
+            <div class="glow glow-1"></div>
+            <div class="content">
+                <div class="glass-card">
+                    <div class="reveal">
+                        <h2>The Problem</h2>
+                        <h1>Autonomous <br><span class="acc">Hallucinations.</span></h1>
+                        <p class="mono">Current AI Agents act without physical bounds. A single LLM drift can drain a treasury in seconds.</p>
+                    </div>
+                    <div class="stat-grid reveal" style="animation-delay: 0.2s;">
+                        <div class="stat-box">
+                            <h3>$1.2B</h3>
+                            <p>Potential lost to unverified agent errors</p>
+                        </div>
+                        <div class="stat-box">
+                            <h3>0.0s</h3>
+                            <p>Human reaction time vs. fast execution</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 2: The Solution -->
+        <section class="slide">
+            <div class="content">
+                <div class="glass-card full-card">
+                    <div class="reveal">
+                        <h2>The Solution</h2>
+                        <h1>Gated <span class="acc">Deterministic</span> Protocol.</h1>
+                        <p class="mono" style="margin-bottom: 2rem;">Guardian sits between the Brain (LLM) and the Chain (Solana). No plan executes without hitting the Shield.</p>
+                        
+                        <div class="stat-grid" style="max-width: 800px; margin: 0 auto;">
+                            <div class="stat-box">
+                                <h3>100%</h3>
+                                <p>Deterministic Verification</p>
+                            </div>
+                            <div class="stat-box">
+                                <h3>SHA-256</h3>
+                                <p>On-Chain Audit Trails</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 3: Why Now -->
+        <section class="slide">
+            <div class="glow glow-2"></div>
+            <div class="content">
+                <div class="glass-card">
+                    <div class="reveal" style="text-align: right;">
+                        <img src="../landing/assets/hero.png" alt="Guardian Shield" style="width: 100%; border-radius: 12px; box-shadow: 0 0 30px var(--acc-color-glow);">
+                    </div>
+                    <div class="reveal">
+                        <h2>Why Now?</h2>
+                        <h1>The <span class="acc">Agentic</span> Supercycle.</h1>
+                        <p class="mono">Solana Agent Kit is processing millions in autonomous volume. The industry just realized they forgot the safety belts.</p>
+                        <ul class="mono" style="margin-top: 1rem; color: white; list-style: none;">
+                            <li>✓ 10x Swarm growth YoY</li>
+                            <li>✓ Critical need for "Audit-as-a-Service"</li>
+                            <li>✓ Gated Liquidity is the New Standard</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 4: User Flow -->
+        <section class="slide">
+            <div class="content">
+                <div class="glass-card full-card">
+                    <div class="reveal">
+                        <h2>The User Flow</h2>
+                        <h1 class="acc">Autonomy <br>Verified.</h1>
+                        
+                        <div style="display: flex; gap: 1rem; margin-top: 2rem; justify-content: center;">
+                            <div class="stat-box">
+                                <h3 style="font-size: 1.2rem;">1. Snapshot</h3>
+                                <p>Wallet + Prices</p>
+                            </div>
+                            <div class="stat-box" style="border-color: var(--acc-color);">
+                                <h3 style="font-size: 1.2rem;">2. Risk Shield</h3>
+                                <p>Trigger Logic</p>
+                            </div>
+                            <div class="stat-box">
+                                <h3 style="font-size: 1.2rem;">3. AI Planning</h3>
+                                <p>Gemma4 / OpenAI</p>
+                            </div>
+                            <div class="stat-box" style="background: rgba(59, 130, 246, 0.2);">
+                                <h3 style="font-size: 1.2rem;">4. Pure Gate</h3>
+                                <p>Final Policy Block</p>
+                            </div>
+                        </div>
+                        
+                        <p class="mono" style="margin-top: 3rem;">Guardian: Secure the Chain. Build the Future.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
