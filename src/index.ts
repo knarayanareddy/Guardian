@@ -1,18 +1,28 @@
 #!/usr/bin/env node
 import { Command } from "commander";
+
+// Phase 1
 import { runInit } from "./commands/init";
 import { runPolicyShow, runPolicySet } from "./commands/policy";
+
+// Phase 2
 import { runAirdrop } from "./commands/airdrop";
 import { runWalletStatus } from "./commands/wallet";
+
+// Phase 3
+import { runPolicyValidate } from "./commands/policy.validate";
+import { runPolicyHistory } from "./commands/policy.history";
 
 const program = new Command();
 
 program
   .name("guardian")
-  .description("Policy-bound Solana wallet agent with verifiable receipts and LLM wiki audit log")
-  .version("0.1.0");
+  .description(
+    "Policy-bound Solana wallet agent with verifiable receipts and LLM wiki audit log"
+  )
+  .version("0.3.0");
 
-// ── guardian init ────────────────────────────────────────────────
+// ── guardian init ─────────────────────────────────────────────────────────
 program
   .command("init")
   .description("Initialize Guardian: create directories, default policy, and wiki")
@@ -20,7 +30,24 @@ program
     await runInit();
   });
 
-// ── guardian policy ──────────────────────────────────────────────
+// ── guardian airdrop ──────────────────────────────────────────────────────
+program
+  .command("airdrop")
+  .description("Request devnet SOL airdrop")
+  .option("--sol <amount>", "Amount of SOL to request", "2")
+  .action(async (opts: { sol: string }) => {
+    await runAirdrop(opts.sol);
+  });
+
+// ── guardian wallet ───────────────────────────────────────────────────────
+program
+  .command("wallet")
+  .description("Show wallet address and balances (SOL + SPL tokens)")
+  .action(async () => {
+    await runWalletStatus();
+  });
+
+// ── guardian policy ───────────────────────────────────────────────────────
 const policyCmd = program
   .command("policy")
   .description("Manage the Guardian policy");
@@ -40,23 +67,23 @@ policyCmd
     await runPolicySet(opts.file);
   });
 
-// ── guardian airdrop ─────────────────────────────────────────────
-program
-  .command("airdrop")
-  .description("Request devnet SOL airdrop")
-  .option("--sol <amount>", "Amount of SOL to request", "2")
-  .action(async (opts: { sol: string }) => {
-    await runAirdrop(opts.sol);
+policyCmd
+  .command("validate")
+  .description("Dry-run a hypothetical action against current policy")
+  .option("--scenario <id>", "Named test scenario to evaluate")
+  .option("--all", "Run all built-in test scenarios")
+  .action(async (opts: { scenario?: string; all?: boolean }) => {
+    await runPolicyValidate(opts);
   });
 
-// ── guardian wallet ──────────────────────────────────────────────
-program
-  .command("wallet")
-  .description("Show wallet address and balances (SOL + SPL tokens)")
+policyCmd
+  .command("history")
+  .description("Show today's spend ledger")
   .action(async () => {
-    await runWalletStatus();
+    await runPolicyHistory();
   });
 
+// ── Placeholder stubs (filled in later phases) ────────────────────────────
 program
   .command("plan")
   .description("Produce a plan without executing (Phase 5)")
@@ -91,7 +118,7 @@ program
     console.log("[Phase 9] verify command — coming in Phase 9");
   });
 
-// ── Parse ────────────────────────────────────────────────────────
+// ── Parse ─────────────────────────────────────────────────────────────────
 program.parseAsync(process.argv).catch((err: unknown) => {
   console.error("Fatal error:", err);
   process.exit(1);

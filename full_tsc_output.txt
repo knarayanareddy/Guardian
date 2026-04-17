@@ -1,0 +1,6 @@
+src/policy/spend-ledger.schema.ts(12,32): error TS2339: Property 'nonneg' does not exist on type 'ZodNumber'.
+src/policy/spend-ledger.store.ts(88,51): error TS18046: 'e.lamports' is of type 'unknown'.
+src/policy/spend-ledger.store.ts(104,78): error TS18046: 'e.lamports' is of type 'unknown'.
+src/policy/spend-ledger.store.ts(119,31): error TS18046: 'e.actionType' is of type 'unknown'.
+src/policy/spend-ledger.store.ts(120,15): error TS18046: 'e.lamports' is of type 'unknown'.
+src/policy/spend-ledger.store.ts(121,50): error TS2339: Property 'slice' does not exist on type '{}'.
