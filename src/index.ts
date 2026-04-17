@@ -17,6 +17,24 @@ import { runPolicyHistory } from "./commands/policy.history";
 import { runRiskStatus } from "./commands/risk.status";
 import { runRiskHistory } from "./commands/risk.history";
 
+// Phase 5
+import { runPlan } from "./commands/plan";
+
+// Phase 6
+import { runApprovalsList, runApprovalsShow } from "./commands/approvals";
+
+// Phase 7
+import { runOnce } from "./commands/run";
+
+// Phase 8
+import { runReceiptList, runReceiptShow, runReceiptProcess } from "./commands/receipt";
+
+// Phase 9
+import { runVerifyReceipt } from "./commands/verify";
+
+// Phase 10
+import { runDaemon } from "./commands/daemon";
+
 const program = new Command();
 
 program
@@ -24,7 +42,7 @@ program
   .description(
     "Policy-bound Solana wallet agent with verifiable receipts and LLM wiki audit log"
   )
-  .version("0.4.0");
+  .version("0.10.0");
 
 // ── guardian init ─────────────────────────────────────────────────────────
 program
@@ -107,39 +125,97 @@ riskCmd
     await runRiskHistory(opts);
   });
 
-// ── Placeholder stubs (filled in later phases) ────────────────────────────
+// ── guardian plan ─────────────────────────────────────────────────────────
 program
   .command("plan")
-  .description("Produce a plan without executing (Phase 5)")
-  .option("--reason <reason>", "Reason for planning", "manual")
-  .option("--dry-run", "Dry run mode (no execution)")
-  .action(() => {
-    console.log("[Phase 5] plan command — coming in Phase 5");
+  .description("Generate an LLM plan, run policy check, and optionally seek approval")
+  .option("--reason <reason>", "Trigger reason passed to planner", "manual")
+  .option("--dry-run", "Print plan + policy check only, skip approval prompt")
+  .action(async (opts: { reason?: string; dryRun?: boolean }) => {
+    await runPlan({
+      reason: opts.reason,
+      dryRun: opts.dryRun ?? false,
+    });
   });
 
+// ── guardian approvals ────────────────────────────────────────────────────
+const approvalsCmd = program
+  .command("approvals")
+  .description("View approval history");
+
+approvalsCmd
+  .command("list")
+  .description("List recent approval records")
+  .option("-n, --n <count>", "Number of records to show", "20")
+  .action(async (opts: { n?: string }) => {
+    await runApprovalsList(opts);
+  });
+
+approvalsCmd
+  .command("show")
+  .description("Show a specific approval record")
+  .requiredOption("--id <requestId>", "Approval request ID")
+  .action(async (opts: { id: string }) => {
+    await runApprovalsShow(opts.id);
+  });
+
+// ── guardian run ──────────────────────────────────────────────────────────
 program
   .command("run")
-  .description("Execute one full agent cycle (Phase 7)")
-  .option("--once", "Run once and exit")
-  .option("--dry-run", "Dry run: plan but do not execute")
-  .action(() => {
-    console.log("[Phase 7] run command — coming in Phase 7");
+  .description("Execute one full agent cycle: snapshot → risk → plan → approve → execute")
+  .option("--once", "Run once and exit (default behavior)")
+  .option("--dry-run", "Simulate execution without touching the chain")
+  .option("--plan-id <id>", "Re-execute a previously saved + approved plan by ID")
+  .action(async (opts: { once?: boolean; dryRun?: boolean; planId?: string }) => {
+    await runOnce({
+      once: opts.once ?? true,
+      dryRun: opts.dryRun ?? false,
+      planId: opts.planId,
+    });
+  });
+
+// ── guardian receipt ──────────────────────────────────────────────────────
+const receiptCmd = program
+  .command("receipt")
+  .description("Receipt management (local receipts + on-chain memo anchors)");
+
+receiptCmd
+  .command("list")
+  .description("List recent receipts")
+  .option("-n, --n <count>", "Number of receipts to show", "20")
+  .action(async (opts: { n?: string }) => {
+    await runReceiptList(opts);
+  });
+
+receiptCmd
+  .command("show")
+  .description("Show a receipt by hash")
+  .requiredOption("--hash <hash>", "Receipt hash")
+  .action(async (opts: { hash: string }) => {
+    await runReceiptShow(opts.hash);
+  });
+
+receiptCmd
+  .command("process")
+  .description("Process a pending receipt (if present)")
+  .action(async () => {
+    await runReceiptProcess();
   });
 
 program
   .command("daemon")
-  .description("Run the agent in a continuous loop (Phase 10)")
-  .option("--interval <seconds>", "Interval between cycles in seconds", "60")
-  .action(() => {
-    console.log("[Phase 10] daemon command — coming in Phase 10");
+  .description("Run Guardian continuously (auto snapshot → plan → approve → execute)")
+  .option("--interval <seconds>", "Base interval between cycles (seconds)", "60")
+  .action(async (opts: { interval?: string }) => {
+    await runDaemon(opts);
   });
 
 program
   .command("verify")
-  .description("Verify a receipt hash on-chain (Phase 9)")
+  .description("Verify a receipt hash locally + on-chain memo anchor + action tx")
   .requiredOption("--receipt <hash>", "Receipt hash to verify")
-  .action(() => {
-    console.log("[Phase 9] verify command — coming in Phase 9");
+  .action(async (opts: { receipt: string }) => {
+    await runVerifyReceipt(opts.receipt);
   });
 
 // ── Parse ─────────────────────────────────────────────────────────────────

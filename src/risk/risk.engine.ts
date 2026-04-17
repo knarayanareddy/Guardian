@@ -6,6 +6,11 @@ import type {
   RiskReport,
   RiskLevel,
 } from "./risk.types";
+
+export interface RiskRuntimeState {
+  consecutiveFailures?: number;
+  failureThreshold?: number;
+}
 import {
   getWindowStartObservation,
 } from "../state/price-history.store";
@@ -171,7 +176,7 @@ function buildSummary(triggers: TriggerEvent[], level: RiskLevel): string {
  * Evaluate a snapshot against the current policy and return a RiskReport.
  * Pure / deterministic — no LLM calls, no side effects.
  */
-export function evaluateRisk(snapshot: WalletSnapshot): RiskReport {
+export function evaluateRisk(snapshot: WalletSnapshot, runtime?: RiskRuntimeState): RiskReport {
   const policy = loadPolicy();
   const policyHash = hashPolicy(policy);
   const triggers: TriggerEvent[] = [];
@@ -212,6 +217,19 @@ export function evaluateRisk(snapshot: WalletSnapshot): RiskReport {
   // ── 2. Low SOL trigger ─────────────────────────────────────────────────
   const lowSolTrigger = evaluateLowSol(snapshot.solLamports);
   if (lowSolTrigger) triggers.push(lowSolTrigger);
+
+  // ── 2.5 Execution failure trigger (daemon state) ───────────────────────
+  const failureCount = runtime?.consecutiveFailures ?? 0;
+  const failureThreshold = runtime?.failureThreshold ?? 3;
+
+  if (failureThreshold > 0 && failureCount >= failureThreshold) {
+    triggers.push({
+      kind: "execution_failure",
+      failureCount,
+      thresholdCount: failureThreshold,
+      message: `Consecutive execution failures (${failureCount}) reached threshold (${failureThreshold}).`,
+    });
+  }
 
   // ── 3. Rug risk triggers (from snap.rugReports if present) ─────────────
   if (snapshot.rugReports) {

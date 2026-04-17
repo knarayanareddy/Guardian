@@ -102,5 +102,21 @@
     "symbol": "SOL",
     "priceUsd": 0,
     "source": "jupiter"
+  },
+  {
+    "timestamp": "2026-04-17T09:46:10.494Z",
+    "unixTs": 1776419170,
+    "mint": "So11111111111111111111111111111111111111112",
+    "symbol": "SOL",
+    "priceUsd": 0,
+    "source": "jupiter"
+  },
+  {
+    "timestamp": "2026-04-17T09:56:53.947Z",
+    "unixTs": 1776419813,
+    "mint": "So11111111111111111111111111111111111111112",
+    "symbol": "SOL",
+    "priceUsd": 0,
+    "source": "jupiter"
   }
 ]

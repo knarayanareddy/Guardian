@@ -25,10 +25,13 @@ export const ConfigSchema = z.object({
   daemonIntervalSeconds: z.number().int().min(10).default(60),
   maxTxRetries: z.number().int().min(0).max(5).default(2),
 
-  // Paths
   dataDir: z.string().default("./data"),
   wikiDir: z.string().default("./wiki"),
   receiptsDir: z.string().default("./data/receipts"),
+
+  failureHaltThreshold: z.number().int().min(1).max(50).default(3),
+  daemonBackoffMaxSeconds: z.number().int().min(0).max(3600).default(300),
+  wikiHashAnchorEnabled: z.boolean().default(false),
 });
 
 export type Config = z.infer<typeof ConfigSchema>;
@@ -49,6 +52,9 @@ export function loadConfig(): Config {
     dataDir: process.env.DATA_DIR ?? "./data",
     wikiDir: process.env.WIKI_DIR ?? "./wiki",
     receiptsDir: process.env.RECEIPTS_DIR ?? "./data/receipts",
+    failureHaltThreshold: Number(process.env.FAILURE_HALT_THRESHOLD ?? "3"),
+    daemonBackoffMaxSeconds: Number(process.env.DAEMON_BACKOFF_MAX_SECONDS ?? "300"),
+    wikiHashAnchorEnabled: (process.env.WIKI_HASH_ANCHOR_ENABLED ?? "false").toLowerCase() === "true",
   };
 
   const parsed = ConfigSchema.safeParse(raw);
@@ -88,9 +94,13 @@ export function safeConfigSummary(config: Config): Record<string, unknown> {
     dataDir: config.dataDir,
     wikiDir: config.wikiDir,
     receiptsDir: config.receiptsDir,
+    failureHaltThreshold: config.failureHaltThreshold,
+    daemonBackoffMaxSeconds: config.daemonBackoffMaxSeconds,
+    wikiHashAnchorEnabled: config.wikiHashAnchorEnabled,
     openAiApiKey: config.openAiApiKey ? "[REDACTED]" : "(missing)",
   };
 }
+
 
 export function checkDirsExist(config: Config): boolean {
   const dirs = [config.dataDir, config.wikiDir, config.receiptsDir];
