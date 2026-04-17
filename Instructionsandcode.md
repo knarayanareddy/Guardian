@@ -13070,3 +13070,425 @@ final combined context block
 
 
 
+
+
+
+Observability layer instructions:  
+
+
+
+small, optional observability patch that adds:
+
+OTEL_EXPORTER_OTLP_ENDPOINT (and a simple enable flag)
+a single src/observability/instrumentation.ts that creates one span + a few metrics per run cycle
+a self-hosted SigNoz Docker Compose (UI on 8080, OTLP receivers on 4317/4318) 
+1
+minimal code churn: a 1-line init in src/index.ts and a wrapper around runOnce()
+It uses OpenTelemetry JS OTLP HTTP exporters + periodic metric reader (standard approach in OTel JS docs). 
+2
+
+1) Add dependencies (OpenTelemetry JS)
+Run:
+
+Bash
+
+npm install \
+  @opentelemetry/api \
+  @opentelemetry/sdk-node \
+  @opentelemetry/resources \
+  @opentelemetry/semantic-conventions \
+  @opentelemetry/sdk-metrics \
+  @opentelemetry/exporter-trace-otlp-http \
+  @opentelemetry/exporter-metrics-otlp-http
+(OpenTelemetry’s JS exporter docs show the OTLP HTTP exporter + PeriodicExportingMetricReader pattern.) 
+2
+
+2) Update .env.example (fully optional via env flag)
+Add:
+
+Bash
+
+# ─── Observability (optional) ──────────────────────────────────────────────
+OBSERVABILITY_ENABLED=false
+
+# Point to an OTLP receiver. For SigNoz self-host, OTLP is exposed on:
+# - gRPC 4317
+# - HTTP 4318
+# We use OTLP/HTTP here.
+OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
+
+# Service name shown in SigNoz
+OTEL_SERVICE_NAME=guardian
+
+# Optional attributes (comma-separated k=v)
+OTEL_RESOURCE_ATTRIBUTES=deployment.environment=dev
+SigNoz docs explicitly call out OTLP receiver ports 4317 (gRPC) and 4318 (HTTP), and the UI at 8080. 
+1
+
+3) Add src/observability/instrumentation.ts
+Create: src/observability/instrumentation.ts
+
+TypeScript
+
+import { diag, DiagConsoleLogger, DiagLogLevel, metrics, trace, SpanStatusCode } from "@opentelemetry/api";
+import { NodeSDK } from "@opentelemetry/sdk-node";
+import { Resource } from "@opentelemetry/resources";
+import { SemanticResourceAttributes } from "@opentelemetry/semantic-conventions";
+import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
+import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-http";
+import { PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics";
+
+type Attributes = Record<string, string | number | boolean | undefined>;
+
+let sdk: NodeSDK | null = null;
+let _enabled = false;
+
+// Instruments (created lazily after init)
+let runsTotal: ReturnType<ReturnType<typeof metrics.getMeter>["createCounter"]> | null = null;
+let runsFailures: ReturnType<ReturnType<typeof metrics.getMeter>["createCounter"]> | null = null;
+let runDurationMs: ReturnType<ReturnType<typeof metrics.getMeter>["createHistogram"]> | null = null;
+
+function envTrue(name: string): boolean {
+  return (process.env[name] ?? "").toLowerCase() === "true";
+}
+
+function getEndpointBase(): string {
+  // OTLP/HTTP receiver base (exporters will hit /v1/traces and /v1/metrics)
+  // OTel spec & docs: signal-specific endpoints are typically /v1/traces, /v1/metrics, /v1/logs. <!--citation:3-->
+  return (process.env.OTEL_EXPORTER_OTLP_ENDPOINT ?? "http://localhost:4318").replace(/\/$/, "");
+}
+
+function parseResourceAttributes(raw: string | undefined): Record<string, string> {
+  const out: Record<string, string> = {};
+  if (!raw) return out;
+  for (const part of raw.split(",")) {
+    const [k, ...rest] = part.split("=");
+    const key = (k ?? "").trim();
+    const val = rest.join("=").trim();
+    if (key && val) out[key] = val;
+  }
+  return out;
+}
+
+export function observabilityEnabled(): boolean {
+  return _enabled;
+}
+
+export async function initObservability(): Promise<void> {
+  if (_enabled) return;
+
+  if (!envTrue("OBSERVABILITY_ENABLED")) {
+    return; // No-op when disabled
+  }
+
+  _enabled = true;
+
+  // Optional: minimal diag logs (keep off by default to avoid noise)
+  if (envTrue("OTEL_DIAG_DEBUG")) {
+    diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG);
+  }
+
+  const endpointBase = getEndpointBase();
+  const tracesUrl = `${endpointBase}/v1/traces`;
+  const metricsUrl = `${endpointBase}/v1/metrics`;
+
+  const serviceName = process.env.OTEL_SERVICE_NAME ?? "guardian";
+  const version = process.env.npm_package_version ?? "0.0.0";
+
+  const extraAttrs = parseResourceAttributes(process.env.OTEL_RESOURCE_ATTRIBUTES);
+
+  const resource = new Resource({
+    [SemanticResourceAttributes.SERVICE_NAME]: serviceName,
+    [SemanticResourceAttributes.SERVICE_VERSION]: version,
+    ...extraAttrs,
+  });
+
+  const traceExporter = new OTLPTraceExporter({ url: tracesUrl });
+  const metricExporter = new OTLPMetricExporter({ url: metricsUrl });
+
+  const metricReader = new PeriodicExportingMetricReader({
+    exporter: metricExporter,
+    exportIntervalMillis: 10_000,
+  });
+
+  sdk = new NodeSDK({
+    resource,
+    traceExporter,
+    metricReader,
+  });
+
+  await sdk.start();
+
+  // Create instruments
+  const meter = metrics.getMeter("guardian");
+  runsTotal = meter.createCounter("guardian_runs_total", {
+    description: "Total run cycles executed",
+  });
+  runsFailures = meter.createCounter("guardian_run_failures_total", {
+    description: "Total run cycles with ok=false",
+  });
+  runDurationMs = meter.createHistogram("guardian_run_duration_ms", {
+    description: "Duration of a run cycle in milliseconds",
+    unit: "ms",
+  });
+
+  // Clean shutdown
+  const shutdown = async () => {
+    try {
+      await sdk?.shutdown();
+    } catch {
+      // ignore
+    }
+  };
+  process.on("SIGINT", shutdown);
+  process.on("SIGTERM", shutdown);
+}
+
+export async function instrumentRunCycle<T extends { ok: boolean; status?: string; message?: string; errorMessage?: string }>(
+  attrs: Attributes,
+  fn: () => Promise<T>
+): Promise<T> {
+  const tracer = trace.getTracer("guardian");
+  const start = Date.now();
+
+  return tracer.startActiveSpan(
+    "guardian.run",
+    { attributes: attrs as Record<string, any> },
+    async (span) => {
+      try {
+        const result = await fn();
+        const dur = Date.now() - start;
+
+        // Metrics
+        runsTotal?.add(1, {
+          ok: result.ok,
+          status: result.status ?? "unknown",
+        });
+
+        if (!result.ok) {
+          runsFailures?.add(1, { status: result.status ?? "unknown" });
+          span.setStatus({ code: SpanStatusCode.ERROR });
+          span.setAttribute("guardian.error", result.errorMessage ?? result.message ?? "unknown");
+        } else {
+          span.setStatus({ code: SpanStatusCode.OK });
+        }
+
+        runDurationMs?.record(dur, {
+          ok: result.ok,
+          status: result.status ?? "unknown",
+        });
+
+        // Span attributes
+        span.setAttribute("guardian.ok", result.ok);
+        if (result.status) span.setAttribute("guardian.status", result.status);
+        if (result.message) span.setAttribute("guardian.message", result.message.slice(0, 200));
+
+        span.end();
+        return result;
+      } catch (err) {
+        const dur = Date.now() - start;
+        const msg = err instanceof Error ? err.message : String(err);
+
+        runsTotal?.add(1, { ok: false, status: "exception" });
+        runsFailures?.add(1, { status: "exception" });
+        runDurationMs?.record(dur, { ok: false, status: "exception" });
+
+        span.setStatus({ code: SpanStatusCode.ERROR });
+        span.setAttribute("guardian.exception", msg.slice(0, 500));
+        span.end();
+
+        throw err;
+      }
+    }
+  );
+}
+Notes:
+
+Uses OTLP/HTTP URLs /v1/traces and /v1/metrics derived from OTEL_EXPORTER_OTLP_ENDPOINT (this aligns with OTLP exporter configuration conventions). 
+3
+When OBSERVABILITY_ENABLED=false, everything is essentially a no-op.
+4) Minimal code churn: initialize observability in src/index.ts
+Edit: src/index.ts
+
+Add near the top (before command parsing):
+
+TypeScript
+
+import { initObservability } from "./observability/instrumentation";
+
+initObservability().catch(() => {
+  // Observability must never break the CLI.
+});
+5) Wrap each run cycle in a span + metrics (tightened-daemon build)
+This assumes your repo is on the “tightened daemon failure counting” version where runOnce() returns RunOutcome.
+
+Edit: src/commands/run.ts
+
+Add import:
+TypeScript
+
+import { instrumentRunCycle } from "../observability/instrumentation";
+Change runOnce() to generate runId once and wrap the entire body:
+At the start of runOnce():
+
+TypeScript
+
+export async function runOnce(opts: RunCommandOpts): Promise<RunOutcome> {
+  const isDryRun = opts.dryRun ?? false;
+  const runId = makeRunId();
+
+  return instrumentRunCycle(
+    {
+      runId,
+      dryRun: isDryRun,
+      planId: opts.planId ?? "",
+    },
+    async () => {
+      // --- keep your existing runOnce body here ---
+      // IMPORTANT: remove any inner `const runId = makeRunId()` if present
+      // and reuse the outer runId for logs/outcomes.
+      //
+      // Ensure every return path returns a RunOutcome.
+    }
+  );
+}
+That’s it: one span + metrics per cycle, without sprinkling span code throughout snapshot/planning/execution.
+
+6) Add SigNoz Docker Compose (UI + collector)
+6.1 Create folder
+Create:
+
+Bash
+
+mkdir -p observability/signoz
+6.2 Create observability/signoz/docker-compose.yaml
+This is a minimal self-host SigNoz stack intended for local/dev usage. SigNoz’s official docs recommend self-hosting via Docker and note ports 8080, 4317, 4318. 
+1
+
+YAML
+
+services:
+  clickhouse:
+    image: clickhouse/clickhouse-server:25.5.6
+    container_name: signoz-clickhouse
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "0.0.0.0:8123/ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 6
+    volumes:
+      - signoz-clickhouse:/var/lib/clickhouse
+
+  signoz:
+    image: signoz/signoz:v0.118.0
+    container_name: signoz
+    restart: unless-stopped
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    volumes:
+      - signoz-sqlite:/var/lib/signoz/
+    environment:
+      - SIGNOZ_TELEMETRYSTORE_CLICKHOUSE_DSN=tcp://clickhouse:9000
+      - SIGNOZ_SQLSTORE_SQLITE_PATH=/var/lib/signoz/signoz.db
+      - SIGNOZ_TOKENIZER_JWT_SECRET=dev-secret
+
+  otel-collector:
+    image: signoz/signoz-otel-collector:v0.144.2
+    container_name: signoz-otel-collector
+    restart: unless-stopped
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+    ports:
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml:ro
+    environment:
+      - SIGNOZ_OTEL_COLLECTOR_CLICKHOUSE_DSN=tcp://clickhouse:9000
+      - SIGNOZ_OTEL_COLLECTOR_TIMEOUT=10m
+    entrypoint: ["/bin/sh"]
+    command:
+      - -c
+      - |
+        /signoz-otel-collector migrate sync check || true
+        /signoz-otel-collector --config=/etc/otel-collector-config.yaml
+
+volumes:
+  signoz-clickhouse:
+  signoz-sqlite:
+6.3 Create observability/signoz/otel-collector-config.yaml
+This is a minimal OTLP receiver → ClickHouse exporters pipeline. (It’s intentionally simple; advanced SigNoz configs add spanmetrics, metadata, etc.)
+
+YAML
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+    timeout: 5s
+
+exporters:
+  clickhousetraces:
+    datasource: tcp://clickhouse:9000/signoz_traces
+    use_new_schema: true
+
+  signozclickhousemetrics:
+    dsn: tcp://clickhouse:9000/signoz_metrics
+
+  clickhouselogsexporter:
+    dsn: tcp://clickhouse:9000/signoz_logs
+    use_new_schema: true
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [clickhousetraces]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [signozclickhousemetrics]
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [clickhouselogsexporter]
+6.4 Run SigNoz
+From repo root:
+
+Bash
+
+docker compose -f observability/signoz/docker-compose.yaml up -d
+Open UI:
+
+http://localhost:8080
+7) Validate end-to-end (Guardian → OTLP → SigNoz)
+Enable observability:
+Bash
+
+# in .env
+OBSERVABILITY_ENABLED=true
+OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
+OTEL_SERVICE_NAME=guardian
+Run one cycle:
+Bash
+
+npx ts-node src/index.ts run --once --dry-run
+In SigNoz UI:
+Look for service guardian
+You should see:
+guardian_runs_total
+guardian_run_duration_ms
+
+
