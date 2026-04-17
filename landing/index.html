@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guardian — The Policy-Bound Autonomous Solana Agent</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({ startOnLoad: true, theme: 'dark' });</script>
+</head>
+<body>
+
+    <nav>
+        <div class="container">
+            <div class="logo">
+                <div class="logo-icon"></div>
+                GUARDIAN
+            </div>
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#architecture">Architecture</a></li>
+                <li><a href="#roadmap">Roadmap</a></li>
+                <li><a href="https://github.com/knarayanareddy/Guardian" target="_blank">GitHub</a></li>
+            </ul>
+            <a href="https://github.com/knarayanareddy/Guardian" class="btn btn-primary">Get Started</a>
+        </div>
+    </nav>
+
+    <main>
+        <section class="container hero">
+            <div class="hero-content">
+                <span class="hero-badge">Phase 10: Complete</span>
+                <h1>Secure Your <br><span class="acc">Solana Assets</span></h1>
+                <p class="hero-subtitle">The first policy-bound autonomous agent with on-chain audit trails, 100% deterministic gating, and living wiki documentation.</p>
+                <div class="hero-btns">
+                    <a href="#features" class="btn btn-primary">Explore Features</a>
+                    <a href="#architecture" class="btn btn-secondary">System Architecture</a>
+                </div>
+
+                <div class="terminal-container">
+                    <div class="terminal-header">
+                        <div class="dot red"></div>
+                        <div class="dot yellow"></div>
+                        <div class="dot green"></div>
+                    </div>
+                    <div class="terminal-body" id="terminal">
+                        <div class="line"><span class="prompt">$</span> guardian boot --autonomous</div>
+                        <div class="line">Loading policy.engine.v1... [OK]</div>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <img src="assets/hero.png" alt="Guardian Shield">
+                <div class="hero-bg-glow"></div>
+            </div>
+        </section>
+
+        <section class="stats-bar">
+            <div class="container stats-grid">
+                <div class="stat-item">
+                    <h3>100%</h3>
+                    <p>Deterministic Ops</p>
+                </div>
+                <div class="stat-item">
+                    <h3>10+</h3>
+                    <p>Safety Gates</p>
+                </div>
+                <div class="stat-item">
+                    <h3>0</h3>
+                    <p>Asset Leakages</p>
+                </div>
+                <div class="stat-item">
+                    <h3>1.0</h3>
+                    <p>Audit Quality</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="features" class="container">
+            <h2 style="text-align: center;">Core <span class="acc">Capabilities</span></h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="icon">🛡️</div>
+                    <h3>Gated Execution</h3>
+                    <p>Every swap and transfer is verified by a hard-coded Policy Engine. LLM hallucinations are blocked instantly.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">📜</div>
+                    <h3>On-Chain Audit</h3>
+                    <p>Execution receipts are hashed (SHA-256) and anchored via SPL Memo transactions for cryptographic proof.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">🤖</div>
+                    <h3>Fault Tolerance</h3>
+                    <p>Daemon mode includes exponential backoffs for RPC rate limits and automatic incident reports on halt.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="architecture" style="background: rgba(255,255,255,0.02);">
+            <div class="container">
+                <h2 style="text-align: center;">System <span class="acc">Architecture</span></h2>
+                <p style="text-align: center; color: var(--text-secondary); margin-bottom: 4rem;">Deterministic verification at every layer of the autonomous stack.</p>
+                
+                <div class="mermaid-container">
+                    <div class="mermaid">
+                        graph LR
+                            subgraph External
+                                A[Solana Chain]
+                            end
+                            subgraph Guardian Runtime
+                                B[Snapshotter] --> C[Risk Engine]
+                                C --> D[LLM Planner]
+                                D --> E[Policy Controller]
+                                E -- Approved --> F[Human Gate]
+                                F -- Approved --> G[Executor]
+                                G --> H[Audit Anchor]
+                                H --> I[Wiki Generator]
+                            end
+                            A -- Portfolio Data --> B
+                            G -- Signed TX --> A
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="roadmap" class="container">
+            <h2 style="text-align: center;">Mission <span class="acc">Roadmap</span></h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>Phases 1-4</h3>
+                    <p>Scaffolding, Risk Engine, and Core Policy deterministic gating.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Phases 5-8</h3>
+                    <p>LLM Planning, Human-in-the-loop, and On-Chain Audit Anchoring.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Phases 9-10</h3>
+                    <p>Wiki rendering, cryptographic verification, and Daemon mode ops.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer style="padding: 4rem 0; border-top: 1px solid var(--glass-border); text-align: center; color: var(--text-secondary);">
+        <div class="container">
+            <p>&copy; 2026 Guardian Protocol. Open Source under MIT.</p>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>

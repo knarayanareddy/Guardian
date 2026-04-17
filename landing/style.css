@@ -1,0 +1,312 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
+
+:root {
+    --bg-color: #000000;
+    --acc-color: #3b82f6;
+    --acc-color-glow: rgba(59, 130, 246, 0.4);
+    --text-primary: #ffffff;
+    --text-secondary: #94a3b8;
+    --glass-bg: rgba(17, 17, 17, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+/* ── Typography ──────────────────────────────────────────────────────────── */
+
+h1, h2, h3 {
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
+h1 { font-size: 4rem; margin-bottom: 1rem; }
+h2 { font-size: 2.5rem; margin-bottom: 2rem; color: var(--acc-color); }
+
+.mono {
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* ── Layout ─────────────────────────────────────────────────────────────── */
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+section {
+    padding: 8rem 0;
+}
+
+/* ── Navbar ─────────────────────────────────────────────────────────────── */
+
+nav {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--glass-border);
+    transition: all 0.3s ease;
+}
+
+nav .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 80px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-weight: 800;
+    font-size: 1.5rem;
+    color: var(--text-primary);
+}
+
+.logo-icon {
+    width: 32px;
+    height: 32px;
+    background: var(--acc-color);
+    border-radius: 6px;
+    box-shadow: 0 0 15px var(--acc-color-glow);
+}
+
+.nav-links {
+    display: flex;
+    gap: 2.5rem;
+    list-style: none;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+
+.nav-links a:hover {
+    color: var(--acc-color);
+}
+
+/* ── Hero ───────────────────────────────────────────────────────────────── */
+
+.hero {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    padding-top: 12rem;
+    align-items: center;
+}
+
+.hero-badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid var(--acc-color);
+    border-radius: 99px;
+    color: var(--acc-color);
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    margin-bottom: 2.5rem;
+    max-width: 500px;
+}
+
+.hero-visual {
+    position: relative;
+}
+
+.hero-visual img {
+    width: 100%;
+    border-radius: 24px;
+    box-shadow: 0 0 50px var(--acc-color-glow);
+}
+
+.hero-bg-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, var(--acc-color-glow) 0%, transparent 70%);
+    transform: translate(-50%, -50%);
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* ── Stats Bar ──────────────────────────────────────────────────────────── */
+
+.stats-bar {
+    background: var(--glass-bg);
+    border-top: 1px solid var(--glass-border);
+    border-bottom: 1px solid var(--glass-border);
+    padding: 3rem 0;
+    backdrop-filter: blur(10px);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+    text-align: center;
+}
+
+.stat-item h3 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.stat-item p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+/* ── Terminal Simulator ─────────────────────────────────────────────────── */
+
+.terminal-container {
+    background: #0d1117;
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: #c9d1d9;
+    box-shadow: var(--card-shadow);
+    margin-top: 4rem;
+}
+
+.terminal-header {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.dot { width: 12px; height: 12px; border-radius: 50%; }
+.red { background: #ff5f56; }
+.yellow { background: #ffbd2e; }
+.green { background: #27c93f; }
+
+.terminal-body {
+    height: 250px;
+    overflow-y: auto;
+}
+
+.line { margin-bottom: 0.4rem; }
+.prompt { color: var(--acc-color); }
+
+/* ── Feature Cards ──────────────────────────────────────────────────────── */
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+}
+
+.feature-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 3rem;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: default;
+}
+
+.feature-card:hover {
+    transform: translateY(-10px);
+    border-color: var(--acc-color);
+}
+
+.feature-card .icon {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+}
+
+.feature-card h3 {
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+}
+
+.feature-card p {
+    color: var(--text-secondary);
+}
+
+/* ── Buttons ────────────────────────────────────────────────────────────── */
+
+.btn {
+    display: inline-block;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 700;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background: var(--acc-color);
+    color: white;
+    box-shadow: 0 4px 15px var(--acc-color-glow);
+}
+
+.btn-primary:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px var(--acc-color);
+}
+
+.btn-secondary {
+    background: transparent;
+    border: 1px solid var(--glass-border);
+    color: var(--text-primary);
+    margin-left: 1rem;
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* ── Mermaid diagram tweaks ─────────────────────────────────────────────── */
+
+.mermaid-container {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 4rem;
+    margin-top: 4rem;
+    display: flex;
+    justify-content: center;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+
+@media (max-width: 1024px) {
+    .hero { grid-template-columns: 1fr; text-align: center; }
+    .hero-subtitle { margin: 0 auto 2.5rem; }
+    .hero-badge { margin-bottom: 1rem; }
+    .feature-grid { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+}
