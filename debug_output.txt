@@ -1,0 +1,18 @@
+◇ injected env (10) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
+
+════════════════════════════════════════════════════════════
+  Wallet Status
+════════════════════════════════════════════════════════════
+
+2026-04-17T09:30:14.955Z ⚠ [WARN] OPENAI_API_KEY is not set. (OK for Phase 2; required in Phase 5 planner.)
+Fatal error: Error: provided secretKey is invalid
+    at Keypair.fromSecretKey (/Users/macbookprom1pro/.gemini/antigravity/scratch/guardian/node_modules/@solana/web3.js/src/keypair.ts:64:17)
+    at loadKeypairFromFile (/Users/macbookprom1pro/.gemini/antigravity/scratch/guardian/src/solana/loadKeypair.ts:30:18)
+    at makeSolanaContext (/Users/macbookprom1pro/.gemini/antigravity/scratch/guardian/src/solana/makeAgent.ts:26:38)
+    at runWalletStatus (/Users/macbookprom1pro/.gemini/antigravity/scratch/guardian/src/commands/wallet.ts:11:67)
+    at Command.<anonymous> (/Users/macbookprom1pro/.gemini/antigravity/scratch/guardian/src/index.ts:57:26)
+    at Command.listener [as _actionHandler] (/Users/macbookprom1pro/.gemini/antigravity/scratch/guardian/node_modules/commander/lib/command.js:568:17)
+    at /Users/macbookprom1pro/.gemini/antigravity/scratch/guardian/node_modules/commander/lib/command.js:1604:14
+    at Command._chainOrCall (/Users/macbookprom1pro/.gemini/antigravity/scratch/guardian/node_modules/commander/lib/command.js:1488:12)
+    at Command._parseCommand (/Users/macbookprom1pro/.gemini/antigravity/scratch/guardian/node_modules/commander/lib/command.js:1603:27)
+    at /Users/macbookprom1pro/.gemini/antigravity/scratch/guardian/node_modules/commander/lib/command.js:1367:27

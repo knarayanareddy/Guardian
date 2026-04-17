@@ -2,6 +2,8 @@
 import { Command } from "commander";
 import { runInit } from "./commands/init";
 import { runPolicyShow, runPolicySet } from "./commands/policy";
+import { runAirdrop } from "./commands/airdrop";
+import { runWalletStatus } from "./commands/wallet";
 
 const program = new Command();
 
@@ -38,13 +40,21 @@ policyCmd
     await runPolicySet(opts.file);
   });
 
-// ── Placeholder stubs (filled in later phases) ──────────────────
+// ── guardian airdrop ─────────────────────────────────────────────
 program
   .command("airdrop")
-  .description("Request devnet SOL airdrop (Phase 2)")
+  .description("Request devnet SOL airdrop")
   .option("--sol <amount>", "Amount of SOL to request", "2")
-  .action(() => {
-    console.log("[Phase 2] airdrop command — coming in Phase 2");
+  .action(async (opts: { sol: string }) => {
+    await runAirdrop(opts.sol);
+  });
+
+// ── guardian wallet ──────────────────────────────────────────────
+program
+  .command("wallet")
+  .description("Show wallet address and balances (SOL + SPL tokens)")
+  .action(async () => {
+    await runWalletStatus();
   });
 
 program

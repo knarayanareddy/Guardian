@@ -4,17 +4,14 @@ import * as dotenv from "dotenv";
 import { z } from "zod";
 import { logger } from "../utils/logger";
 
-// Load .env before schema validation
 dotenv.config();
 
-// ─── Approval mode enum ────────────────────────────────────────
 export const ApprovalModeSchema = z.enum(["always", "policyOnly", "never"]);
 export type ApprovalMode = z.infer<typeof ApprovalModeSchema>;
 
-// ─── Full config schema ────────────────────────────────────────
 export const ConfigSchema = z.object({
-  // Model provider
-  openAiApiKey: z.string().min(10, "OPENAI_API_KEY is required"),
+  // Model provider (optional until Phase 5 planner)
+  openAiApiKey: z.string().optional().default(""),
 
   // Solana
   solanaRpcUrl: z.string().url("SOLANA_RPC_URL must be a valid URL"),
@@ -36,7 +33,6 @@ export const ConfigSchema = z.object({
 
 export type Config = z.infer<typeof ConfigSchema>;
 
-// ─── Loader ────────────────────────────────────────────────────
 let _config: Config | null = null;
 
 export function loadConfig(): Config {
@@ -65,20 +61,22 @@ export function loadConfig(): Config {
     process.exit(1);
   }
 
-  // Resolve paths to absolute
   const config = parsed.data;
+
   config.agentKeypairPath = path.resolve(config.agentKeypairPath);
   config.dataDir = path.resolve(config.dataDir);
   config.wikiDir = path.resolve(config.wikiDir);
   config.receiptsDir = path.resolve(config.receiptsDir);
 
   _config = config;
+
+  if (!config.openAiApiKey) {
+    logger.warn("OPENAI_API_KEY is not set. (OK for Phase 2; required in Phase 5 planner.)");
+  }
+
   return _config;
 }
 
-/**
- * Returns a safe version of the config for logging (no secrets).
- */
 export function safeConfigSummary(config: Config): Record<string, unknown> {
   return {
     solanaRpcUrl: config.solanaRpcUrl,
@@ -90,13 +88,10 @@ export function safeConfigSummary(config: Config): Record<string, unknown> {
     dataDir: config.dataDir,
     wikiDir: config.wikiDir,
     receiptsDir: config.receiptsDir,
-    openAiApiKey: "[REDACTED]",
+    openAiApiKey: config.openAiApiKey ? "[REDACTED]" : "(missing)",
   };
 }
 
-/**
- * Verify that required directories exist (does not create them).
- */
 export function checkDirsExist(config: Config): boolean {
   const dirs = [config.dataDir, config.wikiDir, config.receiptsDir];
   let allExist = true;
